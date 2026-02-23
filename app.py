@@ -64,10 +64,18 @@ if uploaded_file is not None:
         with st.spinner("Extracting text from PDF..."):
             document_text = extract_text_from_pdf(uploaded_file)
             
-        st.success("Document read! AI is analyzing the deal and searching the internet...")
+        # --- NEW DEBUGGING CHECK ---
+        st.info(f"Debug: We extracted {len(document_text.strip())} characters of text from your OM.")
         
-        with st.spinner("Compiling market report..."):
-            analysis_result = analyze_deal(document_text)
+        if len(document_text.strip()) == 0:
+            st.error("🚨 Error: The PDF reader found 0 characters. Your OM is likely a scanned image. Please run it through an OCR tool and try uploading again.")
+        else:
+            st.success("Document read successfully! Handing off to AI...")
             
-        st.subheader("Extraction & Market Results")
-        st.write(analysis_result)
+            with st.spinner("Compiling market report..."):
+                try:
+                    analysis_result = analyze_deal(document_text)
+                    st.subheader("Extraction & Market Results")
+                    st.write(analysis_result)
+                except Exception as e:
+                    st.error(f"🚨 The AI encountered an error: {e}")
